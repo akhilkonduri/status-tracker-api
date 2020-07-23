@@ -6,7 +6,9 @@ import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -176,45 +178,48 @@ public class StatusTrackerUtils {
 			String postedTo = LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
 			String postedFrom = LocalDate.now().minusDays(7).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
 
+			Set<String> naicsSet = new HashSet<String>();
+
 			for (Contract contract : response.getContracts()) {
-
 				if (contract.getPrincipalNAICSCode() != null) {
+					naicsSet.add(contract.getPrincipalNAICSCode());
+				}
+			}
 
-					URL contractOppUrl = new URL(Constants.CONTRACT_OPP_URL + "&limit=" + limit + "&postedFrom="
-							+ postedFrom + "&postedTo=" + postedTo + "&ncode=" + contract.getPrincipalNAICSCode());
+			for (String naics : naicsSet) {
 
-					context.getLogger().log("Contract Opportunities Url :" + contractOppUrl);
+				URL contractOppUrl = new URL(Constants.CONTRACT_OPP_URL + "&limit=" + limit + "&postedFrom="
+						+ postedFrom + "&postedTo=" + postedTo + "&ncode=" + naics);
 
-					String contractOppsRespStr = IOUtils.toString(contractOppUrl, Charset.forName("UTF-8"));
+				context.getLogger().log("Contract Opportunities Url :" + contractOppUrl);
 
-					if (StringUtils.isNotEmpty(contractOppsRespStr)) {
+				String contractOppsRespStr = IOUtils.toString(contractOppUrl, Charset.forName("UTF-8"));
 
-						JSONArray oppoArray = new JSONObject(contractOppsRespStr).optJSONArray("opportunitiesData");
+				if (StringUtils.isNotEmpty(contractOppsRespStr)) {
 
-						if (oppoArray != null) {
-							for (int i = 0; i < oppoArray.length(); i++) {
-								JSONObject oppoData = (JSONObject) oppoArray.get(i);
-								if (StringUtils.isEmpty(String
-										.valueOf(((JSONObject) oppoData.getJSONObject("award")).optString("date")))) {
-									ContractOpps contractOpps = new ContractOpps();
-									contractOpps.setNoticeId(String.valueOf(oppoData.optString("noticeId")));
-									contractOpps.setSolicitationNumber(
-											String.valueOf(oppoData.optString("solicitationNumber")));
-									contractOpps.setPossibleContractName(String.valueOf(oppoData.optString("title")));
-									contractOpps.setNaicsCode(String.valueOf(oppoData.optString("naicsCode")));
-									contractOpps.setDepartment(String.valueOf(oppoData.optString("department")));
-									contractOpps.setPostedDate(String.valueOf(oppoData.optString("postedDate")));
-									contractOpps.setActive(String.valueOf(oppoData.optString("active")));
-									response.getContractOpportunities().add(contractOpps);
-								}
+					JSONArray oppoArray = new JSONObject(contractOppsRespStr).optJSONArray("opportunitiesData");
+
+					if (oppoArray != null) {
+						for (int i = 0; i < oppoArray.length(); i++) {
+							JSONObject oppoData = (JSONObject) oppoArray.get(i);
+							if (StringUtils.isEmpty(
+									String.valueOf(((JSONObject) oppoData.getJSONObject("award")).optString("date")))) {
+								ContractOpps contractOpps = new ContractOpps();
+								contractOpps.setNoticeId(String.valueOf(oppoData.optString("noticeId")));
+								contractOpps.setSolicitationNumber(
+										String.valueOf(oppoData.optString("solicitationNumber")));
+								contractOpps.setPossibleContractName(String.valueOf(oppoData.optString("title")));
+								contractOpps.setNaicsCode(String.valueOf(oppoData.optString("naicsCode")));
+								contractOpps.setDepartment(String.valueOf(oppoData.optString("department")));
+								contractOpps.setPostedDate(String.valueOf(oppoData.optString("postedDate")));
+								contractOpps.setActive(String.valueOf(oppoData.optString("active")));
+								response.getContractOpportunities().add(contractOpps);
 							}
 						}
 					}
 				}
 			}
-		} catch (JSONException |
-
-				IOException e) {
+		} catch (JSONException | IOException e) {
 			e.printStackTrace();
 		}
 	}
