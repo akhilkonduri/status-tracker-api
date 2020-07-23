@@ -78,7 +78,7 @@ public class StatusTrackerUtils {
 					JSONArray naicsArray = goodsAndServices.getJSONArray("naicsList");
 
 					if (naicsArray != null) {
-						for (int i = 0; naicsArray.length() >= i; i++) {
+						for (int i = 0; i< naicsArray.length(); i++) {
 							JSONObject naics = (JSONObject) naicsArray.get(i);
 							response.getEntity().getNaicsList().add(String.valueOf(naics.opt("naicsCode")));
 						}
