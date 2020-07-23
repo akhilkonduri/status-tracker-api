@@ -5,9 +5,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
@@ -78,7 +76,7 @@ public class StatusTrackerUtils {
 					JSONArray naicsArray = goodsAndServices.getJSONArray("naicsList");
 
 					if (naicsArray != null) {
-						for (int i = 0; i< naicsArray.length(); i++) {
+						for (int i = 0; i < naicsArray.length(); i++) {
 							JSONObject naics = (JSONObject) naicsArray.get(i);
 							response.getEntity().getNaicsList().add(String.valueOf(naics.opt("naicsCode")));
 						}
@@ -198,16 +196,26 @@ public class StatusTrackerUtils {
 
 				if (StringUtils.isNotEmpty(contractOppsRespStr)) {
 
-					JSONArray oppo = new JSONObject(contractOppsRespStr).optJSONArray("opportunitiesData");
-					List<ContractOpps> contractsOppsInfo = new ArrayList<ContractOpps>();
+					JSONArray oppoArray = new JSONObject(contractOppsRespStr).optJSONArray("opportunitiesData");
 
-					if (oppo != null) {
-						for (int i = 0; i < oppo.length(); i++) {
-							JSONObject obj = (JSONObject) oppo.get(i);
-							contractsOppsInfo.add(new ContractOpps(String.valueOf(obj.optString("title"))));
+					if (oppoArray != null) {
+						for (int i = 0; i < oppoArray.length(); i++) {
+							JSONObject oppoData = (JSONObject) oppoArray.get(i);
+							if (StringUtils.isEmpty(
+									String.valueOf(((JSONObject) oppoData.getJSONObject("award")).optString("date")))) {
+								ContractOpps contractOpps = new ContractOpps();
+								contractOpps.setNoticeId(String.valueOf(oppoData.optString("noticeId")));
+								contractOpps.setSolicitationNumber(
+										String.valueOf(oppoData.optString("solicitationNumber")));
+								contractOpps.setPossibleContractName(String.valueOf(oppoData.optString("title")));
+								contractOpps.setNaicsCode(String.valueOf(oppoData.optString("naicsCode")));
+								contractOpps.setDepartment(String.valueOf(oppoData.optString("department")));
+								contractOpps.setPostedDate(String.valueOf(oppoData.optString("postedDate")));
+								contractOpps.setActive(String.valueOf(oppoData.optString("active")));
+								response.getContractOpportunities().add(contractOpps);
+							}
 						}
 					}
-					response.getContractOpportunities().addAll(contractsOppsInfo);
 				}
 			}
 		} catch (JSONException | IOException e) {
