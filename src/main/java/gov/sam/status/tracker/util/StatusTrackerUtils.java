@@ -71,17 +71,6 @@ public class StatusTrackerUtils {
 
 					}
 
-					JSONObject goodsAndServices = ((JSONObject) entityData.get(0)).optJSONObject("assertions")
-							.optJSONObject("goodsAndServices");
-					JSONArray naicsArray = goodsAndServices.getJSONArray("naicsList");
-
-					if (naicsArray != null) {
-						for (int i = 0; i < naicsArray.length(); i++) {
-							JSONObject naics = (JSONObject) naicsArray.get(i);
-							response.getEntity().getNaicsList().add(String.valueOf(naics.opt("naicsCode")));
-						}
-
-					}
 				}
 			}
 		} catch (JSONException | IOException e) {
@@ -162,7 +151,8 @@ public class StatusTrackerUtils {
 						contract.setDateSigned(String.valueOf(dateObj.optString("dateSigned")));
 						contract.setActionObligation(String.valueOf(dollarsObj.optString("actionObligation")));
 						contract.setContractName(String.valueOf(documentInfo.optString("piid")));
-
+						JSONObject prodInfo = contractDataObj.optJSONObject("productOrServiceInformation");
+						contract.setPrincipalNAICSCode(String.valueOf(prodInfo.optString("principalNAICSCode")));
 						response.getContracts().add(contract);
 					}
 				}
@@ -186,39 +176,45 @@ public class StatusTrackerUtils {
 			String postedTo = LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
 			String postedFrom = LocalDate.now().minusDays(7).format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
 
-			for (String naics : response.getEntity().getNaicsList()) {
-				URL contractOppUrl = new URL(Constants.CONTRACT_OPP_URL + "&limit=" + limit + "&postedFrom="
-						+ postedFrom + "&postedTo=" + postedTo + "&ncode=" + naics);
+			for (Contract contract : response.getContracts()) {
 
-				context.getLogger().log("Contract Opportunities Url :" + contractOppUrl);
+				if (contract.getPrincipalNAICSCode() != null) {
 
-				String contractOppsRespStr = IOUtils.toString(contractOppUrl, Charset.forName("UTF-8"));
+					URL contractOppUrl = new URL(Constants.CONTRACT_OPP_URL + "&limit=" + limit + "&postedFrom="
+							+ postedFrom + "&postedTo=" + postedTo + "&ncode=" + contract.getPrincipalNAICSCode());
 
-				if (StringUtils.isNotEmpty(contractOppsRespStr)) {
+					context.getLogger().log("Contract Opportunities Url :" + contractOppUrl);
 
-					JSONArray oppoArray = new JSONObject(contractOppsRespStr).optJSONArray("opportunitiesData");
+					String contractOppsRespStr = IOUtils.toString(contractOppUrl, Charset.forName("UTF-8"));
 
-					if (oppoArray != null) {
-						for (int i = 0; i < oppoArray.length(); i++) {
-							JSONObject oppoData = (JSONObject) oppoArray.get(i);
-							if (StringUtils.isEmpty(
-									String.valueOf(((JSONObject) oppoData.getJSONObject("award")).optString("date")))) {
-								ContractOpps contractOpps = new ContractOpps();
-								contractOpps.setNoticeId(String.valueOf(oppoData.optString("noticeId")));
-								contractOpps.setSolicitationNumber(
-										String.valueOf(oppoData.optString("solicitationNumber")));
-								contractOpps.setPossibleContractName(String.valueOf(oppoData.optString("title")));
-								contractOpps.setNaicsCode(String.valueOf(oppoData.optString("naicsCode")));
-								contractOpps.setDepartment(String.valueOf(oppoData.optString("department")));
-								contractOpps.setPostedDate(String.valueOf(oppoData.optString("postedDate")));
-								contractOpps.setActive(String.valueOf(oppoData.optString("active")));
-								response.getContractOpportunities().add(contractOpps);
+					if (StringUtils.isNotEmpty(contractOppsRespStr)) {
+
+						JSONArray oppoArray = new JSONObject(contractOppsRespStr).optJSONArray("opportunitiesData");
+
+						if (oppoArray != null) {
+							for (int i = 0; i < oppoArray.length(); i++) {
+								JSONObject oppoData = (JSONObject) oppoArray.get(i);
+								if (StringUtils.isEmpty(String
+										.valueOf(((JSONObject) oppoData.getJSONObject("award")).optString("date")))) {
+									ContractOpps contractOpps = new ContractOpps();
+									contractOpps.setNoticeId(String.valueOf(oppoData.optString("noticeId")));
+									contractOpps.setSolicitationNumber(
+											String.valueOf(oppoData.optString("solicitationNumber")));
+									contractOpps.setPossibleContractName(String.valueOf(oppoData.optString("title")));
+									contractOpps.setNaicsCode(String.valueOf(oppoData.optString("naicsCode")));
+									contractOpps.setDepartment(String.valueOf(oppoData.optString("department")));
+									contractOpps.setPostedDate(String.valueOf(oppoData.optString("postedDate")));
+									contractOpps.setActive(String.valueOf(oppoData.optString("active")));
+									response.getContractOpportunities().add(contractOpps);
+								}
 							}
 						}
 					}
 				}
 			}
-		} catch (JSONException | IOException e) {
+		} catch (JSONException |
+
+				IOException e) {
 			e.printStackTrace();
 		}
 	}

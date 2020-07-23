@@ -5,6 +5,7 @@ public class Contract {
 	private String dateSigned;
 	private String actionObligation;
 	private String contractName;
+	private String principalNAICSCode;
 
 	public String getDateSigned() {
 		return dateSigned;
@@ -28,6 +29,14 @@ public class Contract {
 
 	public void setContractName(String contractName) {
 		this.contractName = contractName;
+	}
+
+	public String getPrincipalNAICSCode() {
+		return principalNAICSCode;
+	}
+
+	public void setPrincipalNAICSCode(String principalNAICSCode) {
+		this.principalNAICSCode = principalNAICSCode;
 	}
 
 }
