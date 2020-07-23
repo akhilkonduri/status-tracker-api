@@ -18,8 +18,4 @@ Lambda function gateway api proxy URL : https://api.sam.gov/prod/entity-informat
 
 
 Usage:
-  By only one duns, we can display the entity  details, exclusion details, Amount of awards that were received in last year,  and based on the previous awards that already worked, what are the current opportunities are available with same product
-
-
-
-Response JSON:
+  By only one duns, we can display the entity  details, exclusion details, Amount of awards that were received in last year,  and based on the previous awards that already worked, what are the current opportunities are available with same product.
