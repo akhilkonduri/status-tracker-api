@@ -145,7 +145,7 @@ public class StatusTrackerUtils {
 
 		try {
 			URL contractUrl = new URL(Constants.CONTRACT_DATA_API_URL + "&ueiDUNS=" + response.getEntity().getUeiDUNS()
-					+ "&dateSigned=" + dateSigned);
+					+ "&dateSigned=" + dateSigned + "&dollarsObligated=[0,]");
 
 			context.getLogger().log("Contract Data Url :" + contractUrl);
 
