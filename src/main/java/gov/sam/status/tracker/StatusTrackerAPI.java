@@ -6,7 +6,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyRequestEvent;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import gov.sam.status.tracker.pojo.util.StatusTrackerUtils;
+import gov.sam.status.tracker.util.StatusTrackerUtils;
 
 public class StatusTrackerAPI implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 

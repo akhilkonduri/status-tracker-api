@@ -1,4 +1,4 @@
-package gov.sam.status.tracker.pojo.util;
+package gov.sam.status.tracker.util;
 
 public class Constants {
 

@@ -1,4 +1,4 @@
-package gov.sam.status.tracker.pojo.util;
+package gov.sam.status.tracker.util;
 
 import java.io.IOException;
 import java.net.URL;
@@ -72,6 +72,18 @@ public class StatusTrackerUtils {
 						populateExclusionInfo(response, context);
 
 					}
+
+					JSONObject goodsAndServices = ((JSONObject) entityData.get(0)).optJSONObject("assertions")
+							.optJSONObject("goodsAndServices");
+					JSONArray naicsArray = goodsAndServices.getJSONArray("naicsList");
+
+					if (naicsArray != null) {
+						for (int i = 0; naicsArray.length() >= i; i++) {
+							JSONObject naics = (JSONObject) naicsArray.get(i);
+							response.getEntity().getNaicsList().add(String.valueOf(naics.opt("naicsCode")));
+						}
+
+					}
 				}
 			}
 		} catch (JSONException | IOException e) {
@@ -141,7 +153,6 @@ public class StatusTrackerUtils {
 
 			if (StringUtils.isNotEmpty(contractDataRespStr)) {
 				JSONArray awards = new JSONObject(contractDataRespStr).optJSONArray("awardsData");
-				List<Contract> contractsInfo = new ArrayList<>();
 
 				if (awards != null) {
 					for (int i = 0; i < awards.length(); i++) {
@@ -154,10 +165,9 @@ public class StatusTrackerUtils {
 						contract.setActionObligation(String.valueOf(dollarsObj.optString("actionObligation")));
 						contract.setContractName(String.valueOf(documentInfo.optString("piid")));
 
-						contractsInfo.add(contract);
+						response.getContracts().add(contract);
 					}
 				}
-				response.getContracts().addAll(contractsInfo);
 			}
 		} catch (JSONException | IOException e) {
 			e.printStackTrace();
@@ -220,4 +230,5 @@ public class StatusTrackerUtils {
 
 		return headers;
 	}
+
 }
